@@ -194,7 +194,7 @@ export default function ParticleConstellation() {
       }
 
       // Update counter DOM directly (no React re-render)
-      counter!.textContent = `${largest} / ${highScoreRef.current}`
+      counter!.textContent = `${largest} | ${highScoreRef.current}`
 
       // Draw particles
       for (const p of particles) {
@@ -225,8 +225,8 @@ export default function ParticleConstellation() {
         aria-hidden="true"
       />
       <div className="fixed bottom-4 right-4 z-20 select-none rounded bg-white/5 px-3 py-1.5 font-mono text-sm text-white/70 backdrop-blur">
-        <span className="text-white/40">herd </span>
-        <span ref={counterRef}>0 / 0</span>
+        <span className="text-white/40">current herd </span>
+        <span ref={counterRef}>0 | 0</span>
         <span className="text-white/40"> best</span>
       </div>
     </>
