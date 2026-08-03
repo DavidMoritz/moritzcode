@@ -103,11 +103,14 @@ export default function ParticleConstellation() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const herdCounterRef = useRef<HTMLSpanElement>(null)
   const snakeCounterRef = useRef<HTMLSpanElement>(null)
+  const snakeBestLabelRef = useRef<HTMLSpanElement>(null)
   const animationRef = useRef<number>(0)
   const particlesRef = useRef<Particle[]>([])
   const mouseRef = useRef({ x: -9999, y: -9999 })
   const reducedMotion = useRef(false)
   const highScoreRef = useRef(0)
+  const snakeBestRef = useRef(0)
+  const snakeHasDiedRef = useRef(false)
   const isMobileRef = useRef(false)
   const snakeRef = useRef<SnakeState>(
     { path: [], dir: 0, score: 0, alive: false, respawnTimer: 0, targetLength: SNAKE_BASE_LENGTH },
@@ -161,7 +164,7 @@ export default function ParticleConstellation() {
       mouseRef.current = { x: -9999, y: -9999 }
     }
 
-    function handleTap(e: PointerEvent) {
+    function handleTap(e: MouseEvent) {
       if (!isMobileRef.current) return
       const target = e.target as HTMLElement
       if (target.closest('input, textarea, select')) return
@@ -173,7 +176,7 @@ export default function ParticleConstellation() {
 
     window.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseleave', handleMouseLeave)
-    window.addEventListener('pointerdown', handleTap)
+    window.addEventListener('click', handleTap)
 
     if (reducedMotion.current) {
       const particles = particlesRef.current
@@ -188,7 +191,7 @@ export default function ParticleConstellation() {
         window.removeEventListener('resize', resize)
         window.removeEventListener('mousemove', handleMouseMove)
         document.removeEventListener('mouseleave', handleMouseLeave)
-        window.removeEventListener('pointerdown', handleTap)
+        window.removeEventListener('click', handleTap)
       }
     }
 
@@ -284,6 +287,10 @@ export default function ParticleConstellation() {
               }
               snake.alive = false
               snake.respawnTimer = SNAKE_RESPAWN_DELAY
+              if (snake.score > snakeBestRef.current) {
+                snakeBestRef.current = snake.score
+              }
+              snakeHasDiedRef.current = true
               break
             }
           }
@@ -377,7 +384,16 @@ export default function ParticleConstellation() {
           ctx!.fill()
         }
 
-        snakeCounter!.textContent = `${snakeRef.current.score}`
+        const hasDied = snakeHasDiedRef.current
+        snakeCounter!.textContent = hasDied
+          ? `${snakeRef.current.score} | ${snakeBestRef.current}`
+          : `${snakeRef.current.score}`
+        const bestLabel = snakeBestLabelRef.current
+        if (bestLabel) {
+          bestLabel.className = hasDied
+            ? 'text-white/40'
+            : 'hidden text-white/40'
+        }
       }
 
       animationRef.current = requestAnimationFrame(animate)
@@ -390,7 +406,7 @@ export default function ParticleConstellation() {
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseleave', handleMouseLeave)
-      window.removeEventListener('pointerdown', handleTap)
+      window.removeEventListener('click', handleTap)
     }
   }, [initParticles])
 
@@ -405,6 +421,7 @@ export default function ParticleConstellation() {
       <div className="fixed bottom-4 right-4 z-20 select-none rounded bg-white/5 px-3 py-1.5 font-mono text-xs text-white/70 backdrop-blur sm:hidden">
         <span className="text-white/40">snake </span>
         <span ref={snakeCounterRef}>0</span>
+        <span ref={snakeBestLabelRef} className="hidden text-white/40"> best</span>
       </div>
       {/* Herd counter — desktop only */}
       <div className="fixed bottom-4 right-4 z-20 hidden select-none rounded bg-white/5 px-3 py-1.5 font-mono text-sm text-white/70 backdrop-blur sm:block">
