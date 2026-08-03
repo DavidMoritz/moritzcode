@@ -502,7 +502,7 @@ export default function ParticleConstellation() {
       </div>
       {/* Herd counter — desktop only */}
       <div className="fixed bottom-4 right-4 z-20 hidden select-none rounded bg-white/5 px-3 py-1.5 font-mono text-sm text-white/70 backdrop-blur sm:block">
-        <span className="text-white/40">current herd </span>
+        <span className="text-white/40">largest herd </span>
         <span ref={herdCounterRef}>0 | 0</span>
         <span className="text-white/40"> best</span>
       </div>
