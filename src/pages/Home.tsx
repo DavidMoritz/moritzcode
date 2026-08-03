@@ -1,20 +1,25 @@
 import { projects } from '../data/projects'
 import ProjectCard from '../components/ProjectCard'
+import ParticleConstellation from '../components/ParticleConstellation'
+import FloatingText from '../components/FloatingText'
 
 export default function HomePage() {
   return (
     <div>
-      <section className="py-8 sm:py-16 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-          David Moritz
-        </h1>
-        <p className="mt-2 text-lg text-blue-300 font-medium">
-          Full-Stack Developer
-        </p>
-        <p className="mx-auto mt-4 max-w-2xl text-slate-400 leading-relaxed">
-          I build modern web applications with React, TypeScript, and AWS.
-          Focused on clean code, great UX, and shipping products that people actually use.
-        </p>
+      <section className="relative py-8 sm:py-16 text-center">
+        <ParticleConstellation />
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+            <FloatingText text="David Moritz" />
+          </h1>
+          <p className="mt-2 text-lg text-blue-300 font-medium">
+            Full-Stack Developer
+          </p>
+          <p className="mx-auto mt-4 max-w-2xl text-slate-400 leading-relaxed">
+            I build modern web applications with React, TypeScript, and AWS.
+            Focused on clean code, great UX, and shipping products that people actually use.
+          </p>
+        </div>
       </section>
 
       <section>
