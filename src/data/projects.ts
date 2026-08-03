@@ -11,6 +11,23 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    slug: 'rankedchoices',
+    name: 'Ranked Choices',
+    tagline: 'Free ranked choice voting calculator',
+    description:
+      'A free, open-source ranked choice voting app with over 59,000 ballots created and 317,000 votes cast. Anyone can create a ballot, collect ranked votes, and see results calculated with proper RCV algorithms. Supports multi-seat elections, multiple tie-breaking methods, and flexible voter registration.',
+    tech: ['AngularJS', 'PHP', 'MySQL', 'Bootstrap', 'Vite'],
+    url: 'https://rankedchoices.com',
+    github: 'https://github.com/DavidMoritz/rcv',
+    features: [
+      'Create ballots with shareable links and QR codes',
+      'Drag-and-drop ranked voting interface',
+      'Multi-seat election support with vote transfers',
+      'Visual results via RCVis integration',
+      'Voter registration modes: anonymous, optional, required, or code-based',
+    ],
+  },
+  {
     slug: 'bingobolt',
     name: 'BingoBolt',
     tagline: 'Custom bingo board creator and real-time game host',
