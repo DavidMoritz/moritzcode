@@ -26,7 +26,9 @@ const BASE_SPEED = 0.3
 const MOBILE_BREAKPOINT = 640
 
 // Snake
-const SNAKE_SPEED = 1.5
+const SNAKE_START_SPEED = 0.5
+const SNAKE_MAX_SPEED = 3
+const SNAKE_SPEED_RAMP = 30 // score at which max speed is reached
 const SNAKE_BASE_LENGTH = 30
 const SNAKE_GROWTH = 8
 const SNAKE_ABSORB_RADIUS = 15
@@ -78,6 +80,11 @@ function union(parent: number[], size: number[], a: number, b: number) {
   }
 }
 
+function snakeSpeed(score: number): number {
+  const t = Math.min(score / SNAKE_SPEED_RAMP, 1)
+  return SNAKE_START_SPEED + t * (SNAKE_MAX_SPEED - SNAKE_START_SPEED)
+}
+
 function createSnake(w: number, h: number): SnakeState {
   const x = w * 0.25 + Math.random() * w * 0.5
   const y = h * 0.25 + Math.random() * h * 0.5
@@ -85,8 +92,8 @@ function createSnake(w: number, h: number): SnakeState {
   const path: { x: number; y: number }[] = []
   for (let i = 0; i < SNAKE_BASE_LENGTH; i++) {
     path.push({
-      x: ((x - DIR_X[dir] * i * SNAKE_SPEED) % w + w) % w,
-      y: ((y - DIR_Y[dir] * i * SNAKE_SPEED) % h + h) % h,
+      x: ((x - DIR_X[dir] * i * SNAKE_START_SPEED) % w + w) % w,
+      y: ((y - DIR_Y[dir] * i * SNAKE_START_SPEED) % h + h) % h,
     })
   }
   return { path, dir, score: 0, alive: true, respawnTimer: 0, targetLength: SNAKE_BASE_LENGTH }
@@ -157,7 +164,7 @@ export default function ParticleConstellation() {
     function handleTap(e: PointerEvent) {
       if (!isMobileRef.current) return
       const target = e.target as HTMLElement
-      if (target.closest('a, button, input, textarea, select')) return
+      if (target.closest('input, textarea, select')) return
       const snake = snakeRef.current
       if (snake.alive) {
         snake.dir = (snake.dir + 1) % 4
@@ -189,7 +196,6 @@ export default function ParticleConstellation() {
       const w = window.innerWidth
       const h = window.innerHeight
       const particles = particlesRef.current
-      const n = particles.length
       const mouse = mouseRef.current
       const isMobile = isMobileRef.current
 
@@ -228,9 +234,10 @@ export default function ParticleConstellation() {
         const snake = snakeRef.current
         if (snake.alive) {
           const head = snake.path[0]
+          const speed = snakeSpeed(snake.score)
           const newHead = {
-            x: ((head.x + DIR_X[snake.dir] * SNAKE_SPEED) % w + w) % w,
-            y: ((head.y + DIR_Y[snake.dir] * SNAKE_SPEED) % h + h) % h,
+            x: ((head.x + DIR_X[snake.dir] * speed) % w + w) % w,
+            y: ((head.y + DIR_Y[snake.dir] * speed) % h + h) % h,
           }
           snake.path.unshift(newHead)
           while (snake.path.length > snake.targetLength) {
@@ -289,6 +296,7 @@ export default function ParticleConstellation() {
       }
 
       // --- Draw connections ---
+      const n = particles.length
       const parent = Array.from({ length: n }, (_, i) => i)
       const size = new Array<number>(n).fill(1)
 
