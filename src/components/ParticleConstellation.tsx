@@ -112,6 +112,7 @@ export default function ParticleConstellation() {
   const snakeBestRef = useRef(0)
   const snakeHasDiedRef = useRef(false)
   const isMobileRef = useRef(false)
+  const lastWidthRef = useRef(0)
   const snakeRef = useRef<SnakeState>(
     { path: [], dir: 0, score: 0, alive: false, respawnTimer: 0, targetLength: SNAKE_BASE_LENGTH },
   )
@@ -122,6 +123,8 @@ export default function ParticleConstellation() {
       createParticle(width, height),
     )
     highScoreRef.current = 0
+    snakeBestRef.current = 0
+    snakeHasDiedRef.current = false
     isMobileRef.current = width < MOBILE_BREAKPOINT
     if (isMobileRef.current) {
       snakeRef.current = createSnake(width, height)
@@ -150,7 +153,11 @@ export default function ParticleConstellation() {
       canvas!.style.width = `${w}px`
       canvas!.style.height = `${h}px`
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
-      initParticles(w, h)
+      // Only reinitialize when width changes (skip mobile address bar show/hide)
+      if (w !== lastWidthRef.current) {
+        lastWidthRef.current = w
+        initParticles(w, h)
+      }
     }
 
     resize()
