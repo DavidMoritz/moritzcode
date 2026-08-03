@@ -310,7 +310,7 @@ export default function ParticleConstellation() {
             snake.path.pop()
           }
 
-          // Absorb nearby particles (no replacement — field gets sparser)
+          // Absorb nearby particles
           for (let i = particles.length - 1; i >= 0; i--) {
             const dx = particles[i].x - newHead.x
             const dy = particles[i].y - newHead.y
@@ -319,6 +319,10 @@ export default function ParticleConstellation() {
               particles.splice(i, 1)
               snake.score++
               snake.targetLength += SNAKE_GROWTH
+              // After 30 consumed, replenish so there are always ~5 to chase
+              if (snake.score >= 30) {
+                particles.push(createParticle(w, h))
+              }
               break
             }
           }
