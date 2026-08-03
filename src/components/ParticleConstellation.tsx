@@ -33,23 +33,49 @@ function getParticleCount(width: number): number {
   return 75
 }
 
+// Union-Find for connected components
+function findRoot(parent: number[], i: number): number {
+  while (parent[i] !== i) {
+    parent[i] = parent[parent[i]]
+    i = parent[i]
+  }
+  return i
+}
+
+function union(parent: number[], size: number[], a: number, b: number) {
+  const ra = findRoot(parent, a)
+  const rb = findRoot(parent, b)
+  if (ra === rb) return
+  if (size[ra] < size[rb]) {
+    parent[ra] = rb
+    size[rb] += size[ra]
+  } else {
+    parent[rb] = ra
+    size[ra] += size[rb]
+  }
+}
+
 export default function ParticleConstellation() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const counterRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number>(0)
   const particlesRef = useRef<Particle[]>([])
   const mouseRef = useRef({ x: -9999, y: -9999 })
   const reducedMotion = useRef(false)
+  const highScoreRef = useRef(0)
 
   const initParticles = useCallback((width: number, height: number) => {
     const count = getParticleCount(width)
     particlesRef.current = Array.from({ length: count }, () =>
       createParticle(width, height),
     )
+    highScoreRef.current = 0
   }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    const counter = counterRef.current
+    if (!canvas || !counter) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -85,7 +111,6 @@ export default function ParticleConstellation() {
     document.addEventListener('mouseleave', handleMouseLeave)
 
     if (reducedMotion.current) {
-      // Static render: draw dots once with no animation
       const particles = particlesRef.current
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
       for (const p of particles) {
@@ -105,13 +130,13 @@ export default function ParticleConstellation() {
       const w = window.innerWidth
       const h = window.innerHeight
       const particles = particlesRef.current
+      const n = particles.length
       const mouse = mouseRef.current
 
       ctx!.clearRect(0, 0, w, h)
 
       // Update positions
       for (const p of particles) {
-        // Mouse repulsion
         const dx = p.x - mouse.x
         const dy = p.y - mouse.y
         const dist = Math.sqrt(dx * dx + dy * dy)
@@ -121,7 +146,6 @@ export default function ParticleConstellation() {
           p.vy += (dy / dist) * force
         }
 
-        // Dampen velocity back toward base speed
         const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
         if (speed > BASE_SPEED) {
           p.vx *= 0.98
@@ -131,20 +155,24 @@ export default function ParticleConstellation() {
         p.x += p.vx
         p.y += p.vy
 
-        // Wrap around edges
         if (p.x < -10) p.x = w + 10
         if (p.x > w + 10) p.x = -10
         if (p.y < -10) p.y = h + 10
         if (p.y > h + 10) p.y = -10
       }
 
-      // Draw connections
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
+      // Union-Find for connected components
+      const parent = Array.from({ length: n }, (_, i) => i)
+      const size = new Array<number>(n).fill(1)
+
+      // Draw connections + build union-find
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
           const dx = particles[i].x - particles[j].x
           const dy = particles[i].y - particles[j].y
           const dist = Math.sqrt(dx * dx + dy * dy)
           if (dist < CONNECTION_DISTANCE) {
+            union(parent, size, i, j)
             const alpha = (1 - dist / CONNECTION_DISTANCE) * 0.15
             ctx!.beginPath()
             ctx!.moveTo(particles[i].x, particles[i].y)
@@ -155,6 +183,18 @@ export default function ParticleConstellation() {
           }
         }
       }
+
+      // Find largest group
+      let largest = 0
+      for (let i = 0; i < n; i++) {
+        if (size[i] > largest) largest = size[i]
+      }
+      if (largest > highScoreRef.current) {
+        highScoreRef.current = largest
+      }
+
+      // Update counter DOM directly (no React re-render)
+      counter!.textContent = `${largest} / ${highScoreRef.current}`
 
       // Draw particles
       for (const p of particles) {
@@ -178,10 +218,17 @@ export default function ParticleConstellation() {
   }, [initParticles])
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 z-0"
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 z-0"
+        aria-hidden="true"
+      />
+      <div className="fixed bottom-4 right-4 z-20 select-none rounded bg-white/5 px-3 py-1.5 font-mono text-sm text-white/70 backdrop-blur">
+        <span className="text-white/40">herd </span>
+        <span ref={counterRef}>0 / 0</span>
+        <span className="text-white/40"> best</span>
+      </div>
+    </>
   )
 }

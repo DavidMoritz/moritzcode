@@ -1,5 +1,4 @@
 import { createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import AppLayout from './App'
 import HomePage from './pages/Home'
 import AboutPage from './pages/About'
@@ -8,12 +7,7 @@ import ProjectDetailPage from './pages/ProjectDetail'
 import { projects } from './data/projects'
 
 const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <AppLayout />
-      {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
-    </>
-  ),
+  component: AppLayout,
 })
 
 const indexRoute = createRoute({
