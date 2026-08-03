@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation } from '@tanstack/react-router'
 import { useState } from 'react'
 import Footer from './components/Footer'
+import ParticleConstellation from './components/ParticleConstellation'
 
 const navLinks = [
   { to: '/' as const, label: 'Home' },
@@ -14,7 +15,8 @@ function AppLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      <header className="border-b border-white/5 bg-white/5 backdrop-blur">
+      <ParticleConstellation />
+      <header className="relative z-10 border-b border-white/5 bg-white/5 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
           <Link to="/" className="group inline-flex items-center gap-2 text-lg font-semibold">
             <span className="h-2 w-2 rounded-full bg-blue-400 transition group-hover:scale-125" />
@@ -68,7 +70,7 @@ function AppLayout() {
         )}
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+      <main className="relative z-10 mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
         <Outlet />
       </main>
 

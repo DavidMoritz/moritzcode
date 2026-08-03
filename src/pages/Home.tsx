@@ -1,14 +1,12 @@
 import { projects } from '../data/projects'
 import ProjectCard from '../components/ProjectCard'
-import ParticleConstellation from '../components/ParticleConstellation'
 import FloatingText from '../components/FloatingText'
 
 export default function HomePage() {
   return (
     <div>
-      <section className="relative py-8 sm:py-16 text-center">
-        <ParticleConstellation />
-        <div className="relative z-10">
+      <section className="py-8 sm:py-16 text-center">
+        <div>
           <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
             <FloatingText text="David Moritz" />
           </h1>

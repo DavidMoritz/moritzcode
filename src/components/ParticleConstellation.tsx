@@ -58,42 +58,36 @@ export default function ParticleConstellation() {
       '(prefers-reduced-motion: reduce)',
     ).matches
 
-    const parent = canvas.parentElement
-    if (!parent) return
-
     function resize() {
-      const rect = parent!.getBoundingClientRect()
+      const w = window.innerWidth
+      const h = window.innerHeight
       const dpr = window.devicePixelRatio || 1
-      canvas!.width = rect.width * dpr
-      canvas!.height = rect.height * dpr
-      canvas!.style.width = `${rect.width}px`
-      canvas!.style.height = `${rect.height}px`
+      canvas!.width = w * dpr
+      canvas!.height = h * dpr
+      canvas!.style.width = `${w}px`
+      canvas!.style.height = `${h}px`
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
-      initParticles(rect.width, rect.height)
+      initParticles(w, h)
     }
 
     resize()
-
-    const ro = new ResizeObserver(resize)
-    ro.observe(parent)
+    window.addEventListener('resize', resize)
 
     function handleMouseMove(e: MouseEvent) {
-      const rect = canvas!.getBoundingClientRect()
-      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+      mouseRef.current = { x: e.clientX, y: e.clientY }
     }
 
     function handleMouseLeave() {
       mouseRef.current = { x: -9999, y: -9999 }
     }
 
-    canvas.addEventListener('mousemove', handleMouseMove)
-    canvas.addEventListener('mouseleave', handleMouseLeave)
+    window.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseleave', handleMouseLeave)
 
     if (reducedMotion.current) {
       // Static render: draw dots once with no animation
       const particles = particlesRef.current
-      const rect = parent.getBoundingClientRect()
-      ctx.clearRect(0, 0, rect.width, rect.height)
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
       for (const p of particles) {
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
@@ -101,16 +95,15 @@ export default function ParticleConstellation() {
         ctx.fill()
       }
       return () => {
-        ro.disconnect()
-        canvas.removeEventListener('mousemove', handleMouseMove)
-        canvas.removeEventListener('mouseleave', handleMouseLeave)
+        window.removeEventListener('resize', resize)
+        window.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseleave', handleMouseLeave)
       }
     }
 
     function animate() {
-      const rect = parent!.getBoundingClientRect()
-      const w = rect.width
-      const h = rect.height
+      const w = window.innerWidth
+      const h = window.innerHeight
       const particles = particlesRef.current
       const mouse = mouseRef.current
 
@@ -178,16 +171,16 @@ export default function ParticleConstellation() {
 
     return () => {
       cancelAnimationFrame(animationRef.current)
-      ro.disconnect()
-      canvas.removeEventListener('mousemove', handleMouseMove)
-      canvas.removeEventListener('mouseleave', handleMouseLeave)
+      window.removeEventListener('resize', resize)
+      window.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseleave', handleMouseLeave)
     }
   }, [initParticles])
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 z-0"
+      className="fixed inset-0 z-0"
       aria-hidden="true"
     />
   )
