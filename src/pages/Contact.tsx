@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import FloatingText from '../components/FloatingText'
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false)
@@ -20,7 +21,7 @@ export default function ContactPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white sm:text-4xl">Get in Touch</h1>
+      <h1 className="text-3xl font-bold text-white sm:text-4xl"><FloatingText text="Get in Touch" /></h1>
       <p className="mt-3 max-w-xl text-slate-400">
         Have a project idea or just want to say hello? Fill out the form below and I'll get back to you.
       </p>
@@ -72,12 +73,15 @@ export default function ContactPage() {
               placeholder="Tell me about your project or idea..."
             />
           </div>
-          <button
-            type="submit"
-            className="rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-blue-400"
-          >
-            Send Message
-          </button>
+          <div className="flex items-center justify-between">
+            <button
+              type="submit"
+              className="rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-blue-400"
+            >
+              Send Message
+            </button>
+            <span className="text-xs text-slate-600">v{__APP_VERSION__}</span>
+          </div>
         </form>
       )}
     </div>

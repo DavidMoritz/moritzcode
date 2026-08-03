@@ -1,12 +1,13 @@
 export interface Project {
-  slug: string
-  name: string
-  tagline: string
-  description: string
-  tech: string[]
-  url: string
-  github?: string
-  features: string[]
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  tech: string[];
+  url: string;
+  github?: string;
+  appStore?: string;
+  features: string[];
 }
 
 export const projects: Project[] = [
@@ -24,8 +25,8 @@ export const projects: Project[] = [
       'Drag-and-drop ranked voting interface',
       'Multi-seat election support with vote transfers',
       'Visual results via RCVis integration',
-      'Voter registration modes: anonymous, optional, required, or code-based',
-    ],
+      'Voter registration modes: anonymous, optional, required, or code-based'
+    ]
   },
   {
     slug: 'bingobolt',
@@ -41,8 +42,8 @@ export const projects: Project[] = [
       'Share a game code for players to join instantly',
       'Real-time game state via GraphQL subscriptions',
       'Player profiles with game history',
-      'Responsive design for mobile and desktop',
-    ],
+      'Responsive design for mobile and desktop'
+    ]
   },
   {
     slug: 'thecrowdcoder',
@@ -58,37 +59,39 @@ export const projects: Project[] = [
       'Developer profiles and portfolios',
       'Crowdfunding campaign management',
       'Bid and proposal workflow',
-      'Community discussion threads',
-    ],
+      'Community discussion threads'
+    ]
   },
   {
     slug: 'prehistorybook',
     name: 'Prehistory Book',
     tagline: 'An illustrated journey through prehistoric life',
     description:
-      'An interactive web experience exploring Earth\'s prehistoric past through illustrated timelines and detailed articles. Covers major geological eras, key species, and evolutionary milestones in an accessible, visually rich format.',
-    tech: ['React', 'TypeScript', 'Tailwind CSS', 'Vite'],
-    url: 'https://prehistorybook.com',
+      "An interactive web experience exploring Earth's prehistoric past through illustrated timelines and detailed articles. Covers major geological eras, key species, and evolutionary milestones in an accessible, visually rich format.",
+    tech: ['React Native', 'TypeScript', 'Tailwind CSS', 'Vite'],
+    url: 'https://www.prehistorybook.com',
+    appStore: 'https://apps.apple.com/us/app/prehistory-book/id6755539898',
     features: [
       'Interactive geological timeline',
       'Illustrated species profiles',
       'Era-by-era exploration',
-      'Mobile-friendly reading experience',
-    ],
+      'Mobile-friendly reading experience'
+    ]
   },
   {
     slug: 'rivalryclub',
     name: 'Rivalry Club',
     tagline: 'Head-to-head competition platform',
     description:
-      'A platform for organizing and tracking head-to-head competitions and rivalries. Whether it\'s sports picks, trivia, or custom challenges, Rivalry Club lets friends compete, track scores, and settle debates once and for all.',
-    tech: ['React', 'TypeScript', 'Tailwind CSS', 'Vite'],
-    url: 'https://rivalry.club',
+      "A platform for organizing and tracking head-to-head competitions and rivalries. Whether it's sports picks, trivia, or custom challenges, Rivalry Club lets friends compete, track scores, and settle debates once and for all.",
+    tech: ['React Native', 'TypeScript', 'Tailwind CSS', 'Vite'],
+    url: 'http://rivalry.club',
+    appStore: 'https://apps.apple.com/us/app/rivalry-club/id6740737367',
     features: [
       'Create and manage rivalries',
       'Track head-to-head records',
       'Custom challenge categories',
-      'Leaderboards and statistics',
-    ],
-  },
-]
+      'Leaderboards and statistics'
+    ]
+  }
+];

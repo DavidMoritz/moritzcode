@@ -1,3 +1,5 @@
+import FloatingText from '../components/FloatingText'
+
 const skills = [
   { category: 'Frontend', items: ['React', 'TypeScript', 'Tailwind CSS', 'TanStack Router', 'Vite'] },
   { category: 'Backend', items: ['Node.js', 'AWS Lambda', 'GraphQL', 'REST APIs'] },
@@ -8,7 +10,7 @@ const skills = [
 export default function AboutPage() {
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white sm:text-4xl">About Me</h1>
+      <h1 className="text-3xl font-bold text-white sm:text-4xl"><FloatingText text="About Me" /></h1>
 
       <section className="mt-6 max-w-2xl">
         <p className="leading-relaxed text-slate-300">

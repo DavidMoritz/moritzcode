@@ -18,7 +18,12 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-400">
         {project.tagline}
       </p>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {project.appStore && (
+          <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-white">
+            App Store
+          </span>
+        )}
         {project.tech.slice(0, 4).map((t) => (
           <span
             key={t}

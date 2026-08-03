@@ -43,29 +43,18 @@ export default function FloatingText({
       vy: 0,
     }))
 
-    const section = container.closest('section')
-
     function handleMouseMove(e: MouseEvent) {
-      if (!section) return
-      const rect = section.getBoundingClientRect()
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      }
+      mouseRef.current = { x: e.clientX, y: e.clientY }
     }
 
     function handleMouseLeave() {
       mouseRef.current = { x: -9999, y: -9999 }
     }
 
-    if (section) {
-      section.addEventListener('mousemove', handleMouseMove)
-      section.addEventListener('mouseleave', handleMouseLeave)
-    }
+    window.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseleave', handleMouseLeave)
 
     function animate() {
-      if (!section) return
-      const sectionRect = section.getBoundingClientRect()
       const mouse = mouseRef.current
       const physics = physicsRef.current
 
@@ -81,10 +70,10 @@ export default function FloatingText({
         p.vx -= SPRING_K * p.ox
         p.vy -= SPRING_K * p.oy
 
-        // Mouse repulsion (letter center in section coords)
+        // Mouse repulsion (viewport coordinates)
         const rect = el.getBoundingClientRect()
-        const cx = rect.left - sectionRect.left + rect.width / 2
-        const cy = rect.top - sectionRect.top + rect.height / 2
+        const cx = rect.left + rect.width / 2
+        const cy = rect.top + rect.height / 2
 
         const dx = cx - mouse.x
         const dy = cy - mouse.y
@@ -114,10 +103,8 @@ export default function FloatingText({
 
     return () => {
       cancelAnimationFrame(animationRef.current)
-      if (section) {
-        section.removeEventListener('mousemove', handleMouseMove)
-        section.removeEventListener('mouseleave', handleMouseLeave)
-      }
+      window.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseleave', handleMouseLeave)
     }
   }, [text])
 
