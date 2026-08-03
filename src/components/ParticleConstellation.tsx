@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 
 interface Particle {
   x: number
@@ -34,11 +34,14 @@ const SNAKE_GROWTH = 8
 const SNAKE_ABSORB_RADIUS = 15
 const SNAKE_COLLISION_RADIUS = 5
 const SNAKE_COLLISION_SKIP = 25
-const SNAKE_RESPAWN_DELAY = 90
+const SNAKE_RESPAWN_DELAY = 180
 const SNAKE_HEAD_OPACITY = 0.85
 const SNAKE_LINE_WIDTH = 2
 const DIR_X = [1, 0, -1, 0] // right, down, left, up
 const DIR_Y = [0, 1, 0, -1]
+
+// CSS fallback
+const FALLBACK_DOT_COUNT = 20
 
 function createParticle(width: number, height: number): Particle {
   const angle = Math.random() * Math.PI * 2
@@ -99,6 +102,49 @@ function createSnake(w: number, h: number): SnakeState {
   return { path, dir, score: 0, alive: true, respawnTimer: 0, targetLength: SNAKE_BASE_LENGTH }
 }
 
+function FallbackDots() {
+  const [dots] = useState(() =>
+    Array.from({ length: FALLBACK_DOT_COUNT }, (_, i) => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: 1 + Math.random() * 2,
+      opacity: 0.15 + Math.random() * 0.35,
+      duration: 8 + Math.random() * 12,
+      delay: -(Math.random() * 20),
+      driftX: -20 + Math.random() * 40,
+      driftY: -20 + Math.random() * 40,
+      key: i,
+    })),
+  )
+
+  return (
+    <div className="fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+      {dots.map((d) => (
+        <div
+          key={d.key}
+          className="absolute rounded-full"
+          style={{
+            left: d.left,
+            top: d.top,
+            width: d.size,
+            height: d.size,
+            backgroundColor: `rgba(${PARTICLE_COLOR}, ${d.opacity})`,
+            animation: `fallback-drift ${d.duration}s ease-in-out ${d.delay}s infinite`,
+            '--drift-x': `${d.driftX}px`,
+            '--drift-y': `${d.driftY}px`,
+          } as React.CSSProperties}
+        />
+      ))}
+      <style>{`
+        @keyframes fallback-drift {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(var(--drift-x), var(--drift-y)); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 export default function ParticleConstellation() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const herdCounterRef = useRef<HTMLSpanElement>(null)
@@ -111,11 +157,14 @@ export default function ParticleConstellation() {
   const highScoreRef = useRef(0)
   const snakeBestRef = useRef(0)
   const snakeHasDiedRef = useRef(false)
+  const snakeActiveRef = useRef(false)
+  const snakeContainerRef = useRef<HTMLDivElement>(null)
   const isMobileRef = useRef(false)
   const lastWidthRef = useRef(0)
   const snakeRef = useRef<SnakeState>(
     { path: [], dir: 0, score: 0, alive: false, respawnTimer: 0, targetLength: SNAKE_BASE_LENGTH },
   )
+  const [canvasOk, setCanvasOk] = useState(true)
 
   const initParticles = useCallback((width: number, height: number) => {
     const count = getParticleCount(width)
@@ -125,6 +174,7 @@ export default function ParticleConstellation() {
     highScoreRef.current = 0
     snakeBestRef.current = 0
     snakeHasDiedRef.current = false
+    snakeActiveRef.current = false
     isMobileRef.current = width < MOBILE_BREAKPOINT
     if (isMobileRef.current) {
       snakeRef.current = createSnake(width, height)
@@ -133,12 +183,17 @@ export default function ParticleConstellation() {
 
   useEffect(() => {
     const canvas = canvasRef.current
-    const herdCounter = herdCounterRef.current
-    const snakeCounter = snakeCounterRef.current
-    if (!canvas || !herdCounter || !snakeCounter) return
+    if (!canvas) return
 
     const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    if (!ctx) {
+      setCanvasOk(false)
+      return
+    }
+
+    const herdCounter = herdCounterRef.current
+    const snakeCounter = snakeCounterRef.current
+    if (!herdCounter || !snakeCounter) return
 
     reducedMotion.current = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
@@ -178,6 +233,7 @@ export default function ParticleConstellation() {
       const snake = snakeRef.current
       if (snake.alive) {
         snake.dir = (snake.dir + 1) % 4
+        snakeActiveRef.current = true
       }
     }
 
@@ -391,15 +447,23 @@ export default function ParticleConstellation() {
           ctx!.fill()
         }
 
-        const hasDied = snakeHasDiedRef.current
-        snakeCounter!.textContent = hasDied
-          ? `${snakeRef.current.score} | ${snakeBestRef.current}`
-          : `${snakeRef.current.score}`
-        const bestLabel = snakeBestLabelRef.current
-        if (bestLabel) {
-          bestLabel.className = hasDied
-            ? 'text-white/40'
-            : 'hidden text-white/40'
+        if (snakeRef.current.score >= 2) snakeActiveRef.current = true
+        const isActive = snakeActiveRef.current
+        const container = snakeContainerRef.current
+        if (container) {
+          container.style.display = isActive ? '' : 'none'
+        }
+        if (isActive) {
+          const hasDied = snakeHasDiedRef.current
+          snakeCounter!.textContent = hasDied
+            ? `${snakeRef.current.score} | ${snakeBestRef.current}`
+            : `${snakeRef.current.score}`
+          const bestLabel = snakeBestLabelRef.current
+          if (bestLabel) {
+            bestLabel.className = hasDied
+              ? 'text-white/40'
+              : 'hidden text-white/40'
+          }
         }
       }
 
@@ -417,6 +481,8 @@ export default function ParticleConstellation() {
     }
   }, [initParticles])
 
+  if (!canvasOk) return <FallbackDots />
+
   return (
     <>
       <canvas
@@ -425,7 +491,7 @@ export default function ParticleConstellation() {
         aria-hidden="true"
       />
       {/* Snake counter — mobile only */}
-      <div className="fixed bottom-4 right-4 z-20 select-none rounded bg-white/5 px-3 py-1.5 font-mono text-xs text-white/70 backdrop-blur sm:hidden">
+      <div ref={snakeContainerRef} style={{ display: 'none' }} className="fixed bottom-4 right-4 z-20 select-none rounded bg-white/5 px-3 py-1.5 font-mono text-xs text-white/70 backdrop-blur sm:hidden">
         <span className="text-white/40">snake </span>
         <span ref={snakeCounterRef}>0</span>
         <span ref={snakeBestLabelRef} className="hidden text-white/40"> best</span>
